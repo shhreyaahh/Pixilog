@@ -15,8 +15,14 @@ export async function POST(req) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const token = authHeader.split(" ")[1];
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  let decoded;
+
+  try {
+    const token = authHeader.split(" ")[1];
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch {
+    return Response.json({ error: "Invalid token" }, { status: 401 });
+  }
 
   const currentUser = await User.findOne({ username: decoded.username });
   const targetUser = await User.findById(userId);

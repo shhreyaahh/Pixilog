@@ -95,8 +95,8 @@ export default function DiaryPage() {
     return matchesSearch && matchesCategory;
   });
 
-  return (
-    <div className="min-h-screen pb-20 md:p-10">
+return (
+    <div>
       {/* Tabs */}
       <div className="flex justify-center gap-2 md:gap-4 mb-6">
         <button
@@ -198,7 +198,7 @@ export default function DiaryPage() {
         </div>
       )}
 
-      <div className="space-y-6">
+<div className="space-y-6">
         {filteredPosts.map((post) => (
           <div key={post._id}>
             <div className="flex justify-end">

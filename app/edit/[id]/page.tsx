@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactEventHandler, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 export default function EditPost() {
@@ -36,10 +36,13 @@ export default function EditPost() {
 
     e.preventDefault();
 
+    const token = localStorage.getItem("token");
+
     await fetch(`/api/posts/${id}`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({
         title,
@@ -55,7 +58,7 @@ export default function EditPost() {
 
   return (
 
-    <div className="max-w-2xl mx-auto p-10">
+    <div className="max-w-2xl mx-auto p-10 pb-24 md:pb-6">
 
       <h1 className="text-2xl font-bold mb-6">
         Edit Post

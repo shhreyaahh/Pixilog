@@ -48,10 +48,19 @@ export async function PUT(req, { params }) {
   }
 
   const body = await req.json();
+  const updates = {
+    title: body.title,
+    content: body.content,
+    category: body.category,
+    tags: Array.isArray(body.tags)
+      ? body.tags.map((tag) => String(tag).trim()).filter(Boolean)
+      : [],
+    isPublic: Boolean(body.isPublic)
+  };
 
   const updatedPost = await Post.findByIdAndUpdate(
     id,
-    body,
+    updates,
     { new: true }
   );
 

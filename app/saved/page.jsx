@@ -44,7 +44,7 @@ export default function SavedPosts() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center">
         <p className="text-lg opacity-70">Loading saved posts...</p>
       </div>
     );
@@ -52,15 +52,15 @@ export default function SavedPosts() {
 
   if (savedPosts.length === 0) {
     return (
-      <div className="max-w-2xl mx-auto p-10 text-center">
+      <div className="max-w-2xl mx-auto p-10 pb-24 md:pb-6 text-center">
         <h1 className="text-3xl font-pixel font-bold mb-4">Saved Posts</h1>
-        <p className="opacity-70">No saved posts yet.</p>
+        <p className="opacity-70">No saved posts yet. Save public posts to find them here later.</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4 p-4">
+    <div className="max-w-2xl mx-auto space-y-4 p-4 pb-24 md:pb-6">
       <h1 className="text-3xl font-pixel font-bold mb-8">Saved Posts</h1>
       {savedPosts.map((post) => (
         <div key={post._id} className="space-y-1">
@@ -114,7 +114,15 @@ export default function SavedPosts() {
                 by @{post.authorUsername || post.userId}
               </Link>
               {currentUser && (
-                <SaveButton postId={post._id} className="ml-auto" />
+                <SaveButton
+                  postId={post._id}
+                  className="ml-auto"
+                  onSavedChange={(isSaved) => {
+                    if (!isSaved) {
+                      setSavedPosts(savedPosts.filter((savedPost) => savedPost._id !== post._id));
+                    }
+                  }}
+                />
               )}
             </div>
           </div>

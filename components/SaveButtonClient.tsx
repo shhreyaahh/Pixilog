@@ -1,15 +1,20 @@
 "use client";
 import { useState, useEffect } from 'react';
 
+type SavedPost = {
+  _id: string;
+};
+
 interface SaveButtonProps {
   postId: string;
   className?: string;
+  onSavedChange?: (saved: boolean) => void;
 }
 
-export default function SaveButton({ postId, className = "" }: SaveButtonProps) {
+export default function SaveButton({ postId, className = "", onSavedChange }: SaveButtonProps) {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
-  const token = localStorage.getItem('token');
+  const [token, setToken] = useState<string | null>(null);
 
   const buttonStyle = saved
     ? {
@@ -24,6 +29,10 @@ export default function SaveButton({ postId, className = "" }: SaveButtonProps) 
       };
 
   useEffect(() => {
+    setToken(localStorage.getItem('token'));
+  }, []);
+
+  useEffect(() => {
     const checkSaved = async () => {
       if (!token) return;
       try {
@@ -32,7 +41,7 @@ export default function SaveButton({ postId, className = "" }: SaveButtonProps) 
         });
         if (res.ok) {
           const data = await res.json();
-          setSaved(data.savedPosts.some((p:any) => p._id === postId));
+          setSaved(data.savedPosts.some((p: SavedPost) => p._id === postId));
         }
       } catch (err) {
         console.error(err);
@@ -57,7 +66,9 @@ export default function SaveButton({ postId, className = "" }: SaveButtonProps) 
       });
 
       if (res.ok) {
-        setSaved(!saved);
+        const nextSaved = !saved;
+        setSaved(nextSaved);
+        onSavedChange?.(nextSaved);
       }
     } catch (err) {
       console.error(err);

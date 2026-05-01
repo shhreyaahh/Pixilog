@@ -22,14 +22,18 @@ export default async function FollowersPage({ params }) {
   const followers = user?.followers || [];
 
   return (
-    <div className="max-w-xl mx-auto p-10">
+    <div className="max-w-xl mx-auto p-10 pb-24 md:pb-6">
       <h1 className="text-2xl font-bold mb-6">Followers</h1>
 
-      {followers.length === 0 && <p>No followers yet.</p>}
+      {followers.length === 0 && (
+        <p className="opacity-70">No followers yet.</p>
+      )}
 
       {followers.map((u) => (
         <div key={u._id.toString()} className="border p-3 rounded mb-2">
-          <Link href={`/users/${u.username}`}>{u.username}</Link>
+          <Link href={`/users/${u.username}`} className="hover:underline">
+            @{u.username}
+          </Link>
         </div>
       ))}
     </div>

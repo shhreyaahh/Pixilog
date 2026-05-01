@@ -7,9 +7,19 @@ export async function POST(req) {
 
   try {
 
-    const { username, email, password } = await req.json();
+    const body = await req.json();
+    const username = body.username?.trim();
+    const email = body.email?.trim().toLowerCase();
+    const password = body.password;
 
     await connectDB();
+
+    if (!username || !email || !password) {
+      return NextResponse.json(
+        { message: "All fields are required" },
+        { status: 400 }
+      );
+    }
 
     const existingUser = await User.findOne({
       $or: [{ email }, { username }]

@@ -13,6 +13,8 @@ export async function GET(req) {
     const query = searchParams.get("search") || "";
 
     let currentUsername = null;
+    let blockedUsernames = [];
+    let blockedUserIds = [];
 
     const authHeader = req.headers.get("authorization");
 
@@ -24,10 +26,25 @@ export async function GET(req) {
       } catch {}
     }
 
-    let postFilter = { isPublic: true };
+    let followingIds = [];
 
     if (currentUsername) {
-      postFilter.userId = { $ne: currentUsername };
+      const currentUser = await User.findOne({ username: currentUsername })
+        .populate("following", "username");
+
+      if (currentUser) {
+        const followedUsers = currentUser.following.filter(Boolean);
+        const followedUsernames = followedUsers.map((user) => user.username);
+        followingIds = followedUsers.map((user) => user._id.toString());
+        blockedUserIds = [currentUser._id, ...followedUsers.map((user) => user._id)];
+        blockedUsernames = [currentUser.username, ...followedUsernames];
+      }
+    }
+
+    let postFilter = { isPublic: true };
+
+    if (blockedUsernames.length > 0) {
+      postFilter.userId = { $nin: blockedUsernames };
     }
 
     if (query) {
@@ -41,8 +58,8 @@ export async function GET(req) {
 
     let userFilter = {};
 
-    if (currentUsername) {
-      userFilter.username = { $ne: currentUsername };
+    if (blockedUserIds.length > 0) {
+      userFilter._id = { $nin: blockedUserIds };
     }
 
     if (query) {
@@ -53,18 +70,11 @@ export async function GET(req) {
       .sort({ createdAt: -1 })
       .limit(20);
 
-    const users = await User.find(userFilter)
-      .select("-password")
-      .limit(10);
-
-    // Get current user's following list
-    let followingIds = [];
-    if (currentUsername) {
-      const currentUser = await User.findOne({ username: currentUsername });
-      if (currentUser) {
-        followingIds = currentUser.following.map(id => id.toString());
-      }
-    }
+    const users = await User.aggregate([
+      { $match: userFilter },
+      { $sample: { size: 5 } },
+      { $project: { password: 0, email: 0, savedPosts: 0 } }
+    ]);
 
     return Response.json({
       posts,

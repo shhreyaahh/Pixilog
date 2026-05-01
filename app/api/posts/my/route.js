@@ -26,7 +26,7 @@ export async function GET(req) {
 
     const posts = await Post.find({
       userId: decoded.username
-    }).populate('userId', 'username').sort({ createdAt: -1 });
+    }).sort({ createdAt: -1 });
 
     return Response.json(posts);
 

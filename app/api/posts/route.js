@@ -13,14 +13,23 @@ export async function POST(req) {
     }
 
     const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    let decoded;
+
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return Response.json({ error: "Invalid/expired token" }, { status: 401 });
+    }
 
     const formData = await req.formData();
 
     const title = formData.get("title");
     const content = formData.get("content");
     const category = formData.get("category");
-    const tags = formData.get("tags");
+    const tags = String(formData.get("tags") || "")
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
     const isPublic = formData.get("isPublic") === "true";
     const image = formData.get("image");
 

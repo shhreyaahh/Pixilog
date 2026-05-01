@@ -28,6 +28,7 @@ export async function GET(req, { params }) {
   }).sort({ createdAt: -1 });
 
   return Response.json({
+    _id: user._id,
     username: user.username,
     followers: user.followers || [],
     following: user.following || [],

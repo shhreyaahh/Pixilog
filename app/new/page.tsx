@@ -18,6 +18,7 @@ function NewPostForm() {
   const [loading, setLoading] = useState(false);
 
   const [image, setImage] = useState<File | null>(null);
+  const [existingImage, setExistingImage] = useState("");
 
   // LOAD POST IF EDITING
   useEffect(() => {
@@ -34,6 +35,7 @@ function NewPostForm() {
       setCategory(data.category || "Food");
       setTags(data.tags?.join(", ") || "");
       setIsPublic(data.isPublic || false);
+      setExistingImage(data.image || "");
 
     };
 
@@ -49,35 +51,54 @@ function NewPostForm() {
 
     const token = localStorage.getItem("token");
 
-    const formData = new FormData();
+    const cleanedTags = tags
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
 
-    formData.append("title", title);
-    formData.append("content", content);
-    formData.append("category", category);
-    formData.append("tags", tags);
-    formData.append("isPublic", String(isPublic));
+    let res;
 
-    if (image) {
-      formData.append("image", image);
+    if (postId) {
+      res = await fetch(`/api/posts/${postId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title,
+          content,
+          category,
+          tags: cleanedTags,
+          isPublic
+        })
+      });
+    } else {
+      const formData = new FormData();
+
+      formData.append("title", title);
+      formData.append("content", content);
+      formData.append("category", category);
+      formData.append("tags", tags);
+      formData.append("isPublic", String(isPublic));
+
+      if (image) {
+        formData.append("image", image);
+      }
+
+      res = await fetch("/api/posts", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      });
     }
-
-    const res = await fetch("/api/posts", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-      body: formData
-    });
 
     if (res.ok) {
 
       alert("Post saved!");
-
-      if (isPublic) {
-        router.push("/explore");
-      } else {
-        router.push("/diary");
-      }
+      router.push("/diary");
 
     } else {
 
@@ -89,12 +110,12 @@ function NewPostForm() {
 
   }
 
-return ( <div className="min-h-screen pb-20 md:p-10">
+return ( <div className="w-full max-w-full overflow-x-hidden">
 
 
   <form
     onSubmit={handleSubmit}
-    className="max-w-3xl mx-auto p-5 md:p-8 rounded-lg shadow-md border"
+    className="w-full max-w-3xl mx-auto p-5 md:p-8 rounded-lg shadow-md border"
     style={{
       backgroundColor: "var(--card)",
       borderColor: "var(--border)"
@@ -111,7 +132,7 @@ return ( <div className="min-h-screen pb-20 md:p-10">
       placeholder="Title..."
       value={title}
       onChange={(e) => setTitle(e.target.value)}
-      className="w-full p-3 mb-4 rounded border"
+      className="w-full min-w-0 p-3 mb-4 rounded border"
       style={{
         backgroundColor: "var(--input)",
         borderColor: "var(--border)",
@@ -126,7 +147,7 @@ return ( <div className="min-h-screen pb-20 md:p-10">
       rows={6}
       value={content}
       onChange={(e) => setContent(e.target.value)}
-      className="w-full p-3 mb-4 rounded border"
+      className="w-full min-w-0 p-3 mb-4 rounded border"
       style={{
         backgroundColor: "var(--input)",
         borderColor: "var(--border)",
@@ -137,23 +158,23 @@ return ( <div className="min-h-screen pb-20 md:p-10">
 
 
     <input
-      type="text"
-      placeholder="Tags (comma separated)"
-      value={tags}
-      onChange={(e) => setTags(e.target.value)}
-      className="w-full p-3 mb-4 rounded border"
-      style={{
-        backgroundColor: "var(--input)",
-        borderColor: "var(--border)",
-        color: "var(--text)"
-      }}
-    />
+  type="text"
+  placeholder="Tags (optional) • travel, food, memories"
+  value={tags}
+  onChange={(e) => setTags(e.target.value)}
+  className="w-full min-w-0 p-3 mb-4 rounded border"
+  style={{
+    backgroundColor: "var(--input)",
+    borderColor: "var(--border)",
+    color: "var(--text)"
+  }}
+/>
 
 
     <select
       value={category}
       onChange={(e) => setCategory(e.target.value)}
-      className="w-full p-3 mb-6 rounded border"
+      className="w-full min-w-0 p-3 mb-6 rounded border"
       style={{
         backgroundColor: "var(--input)",
         borderColor: "var(--border)",
@@ -168,14 +189,34 @@ return ( <div className="min-h-screen pb-20 md:p-10">
       <option>Personal</option>
     </select>
 
-      <input
+      {postId && existingImage && (
+  <div className="mb-4">
+    <p className="text-sm mb-2 opacity-70">Current image</p>
+
+    <img
+      src={existingImage}
+      alt=""
+      className="w-full max-h-[320px] object-cover rounded-lg border"
+      style={{ borderColor: "var(--border)" }}
+    />
+  </div>
+)}
+
+<input
   type="file"
   accept="image/*"
+  className="w-full max-w-full mb-2"
   onChange={(e) => {
-  const file = e.target.files?.[0];
-  if (file) setImage(file);
-}}
+    const file = e.target.files?.[0];
+    if (file) setImage(file);
+  }}
 />
+
+{postId && (
+  <p className="text-sm opacity-70 mb-4">
+    Choose a new image only if you want to replace the current one.
+  </p>
+)}
 
 
     <label className="flex items-center gap-2 mb-4 mt-4">

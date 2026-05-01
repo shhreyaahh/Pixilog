@@ -22,14 +22,18 @@ export default async function FollowingPage({ params }) {
   const following = user?.following || [];
 
   return (
-    <div className="max-w-xl mx-auto p-10">
+    <div className="max-w-xl mx-auto p-10 pb-24 md:pb-6">
       <h1 className="text-2xl font-bold mb-6">Following</h1>
 
-      {following.length === 0 && <p>Not following anyone yet.</p>}
+      {following.length === 0 && (
+        <p className="opacity-70">Not following anyone yet.</p>
+      )}
 
       {following.map((u) => (
         <div key={u._id.toString()} className="border p-3 rounded mb-2">
-          <Link href={`/users/${u.username}`}>{u.username}</Link>
+          <Link href={`/users/${u.username}`} className="hover:underline">
+            @{u.username}
+          </Link>
         </div>
       ))}
     </div>

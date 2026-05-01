@@ -12,7 +12,10 @@ export default function Explore() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      try { } catch (e) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setCurrentUser(payload.username);
+      } catch (e) {
         console.error('Token decode error', e);
       }
     }
@@ -21,26 +24,6 @@ export default function Explore() {
   const [query, setQuery] = useState("");
   const [following, setFollowing] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [savedPosts, setSavedPosts] = useState([]);
-
-  useEffect(() => {
-    // Load saved posts on mount
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetch("/api/posts/saved", {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.savedPosts) {
-          setSavedPosts(data.savedPosts.map(p => p._id));
-        }
-      })
-      .catch(console.error);
-    }
-  }, []);
 
   useEffect(() => {
 
@@ -63,8 +46,9 @@ export default function Explore() {
   }, [query]);
 
   // follow / unfollow
-  const handleFollow = async (userId) => {
+  const handleFollow = async (user) => {
     const token = localStorage.getItem("token");
+    const userId = user._id;
 
     if (following.includes(userId)) {
       await fetch("/api/users/unfollow", {
@@ -86,34 +70,14 @@ export default function Explore() {
         body: JSON.stringify({ userId })
       });
       setFollowing([...following, userId]);
-    }
-  };
-
-  // save / unsave
-  const handleSave = async (postId) => {
-    const token = localStorage.getItem("token");
-    const url = savedPosts.includes(postId) ? "/api/posts/unsave" : "/api/posts/save";
-
-    await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ postId })
-    });
-
-    // UI update
-    if (savedPosts.includes(postId)) {
-      setSavedPosts(savedPosts.filter(id => id !== postId));
-    } else {
-      setSavedPosts([...savedPosts, postId]);
+      setUsers(users.filter((suggestedUser) => suggestedUser._id !== userId));
+      setPosts(posts.filter((post) => post.userId !== user.username));
     }
   };
 
   return (
 
-    <div className="max-w-2xl mx-auto space-y-8">
+<div className="max-w-2xl mx-auto space-y-8">
 
       {/* Search */}
       <div className="mb-8">
@@ -143,10 +107,14 @@ export default function Explore() {
         </h2>
 
         <div className="space-y-2">
+          {users.length === 0 && (
+            <p className="opacity-70 font-outfit">No new users to suggest right now.</p>
+          )}
 
           {users?.map((user) => (
 
-            <div key={user._id} className="flex justify-between items-center p-2 rounded font-outfit font-medium" style={{ border: '1px solid var(--border)', }}         >      <Link href={`/users/${user.username}`}>{user.username}            </Link>
+            <div key={user._id} className="flex justify-between items-center p-2 rounded font-outfit font-medium" style={{ border: '1px solid var(--border)' }}>
+              <Link href={`/users/${user.username}`} className="hover:underline">@{user.username}</Link>
 
               <div className="flex items-center gap-3">
 
@@ -155,7 +123,7 @@ export default function Explore() {
                 </span>
 
                 <button
-                  onClick={() => handleFollow(user._id)}
+                  onClick={() => handleFollow(user)}
                   className="border px-3 py-1 rounded text-sm font-outfit"
                 >
                   {following.includes(user._id) ? "Unfollow" : "Follow"}
@@ -169,6 +137,16 @@ export default function Explore() {
 
         </div>
 
+      </div>
+
+      <div className="mt-4 mb-2">
+        <Link
+          href="/users"
+          className="text-sm font-outfit font-medium hover:underline"
+          style={{ color: "var(--accent)" }}
+        >
+          See All Users →
+        </Link>
       </div>
 
       {/* Public Posts */}
@@ -188,8 +166,7 @@ export default function Explore() {
             style={{ 
               backgroundColor: "var(--input)",
               borderColor: "var(--border)",
-              color: "var(--text)",
-              border: '1px solid var(--border)'
+              color: "var(--text)"
             }}
           >
             <option value="All">All</option>
@@ -206,22 +183,32 @@ export default function Explore() {
         {/* Desktop category pills */}
         <div className="hidden md:flex gap-2 mb-6 flex-wrap">
           {["All","Food","Beauty","Clothes","Travel","Study","Personal"].map((cat) => (
-          <button
-  key={cat}
-  onClick={() => setSelectedCategory(cat)}
-  className={`px-3 py-1 rounded-full text-sm font-outfit transition border`}
-  style={{
-    backgroundColor: selectedCategory === cat ? "var(--cat-active)" : "var(--cat-bg)",
-    borderColor: selectedCategory === cat ? "var(--cat-active)" : "var(--border)",
-    color: "var(--text)",
-  }}
->
-  {cat}
-</button>
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-3 py-1 rounded-full text-sm font-outfit transition border`}
+              style={{
+                backgroundColor: selectedCategory === cat ? "var(--cat-active)" : "var(--cat-bg)",
+                borderColor: selectedCategory === cat ? "var(--cat-active)" : "var(--border)",
+                color: "var(--text)",
+              }}
+            >
+              {cat}
+            </button>
           ))}
         </div>
 
         {/* Posts */}
+        {posts
+          ?.filter(
+            (post) =>
+              selectedCategory === "All" ||
+              post.category === selectedCategory
+          )
+          .length === 0 && (
+            <p className="opacity-70 font-outfit">No public posts to explore yet.</p>
+          )}
+
         {posts
           ?.filter(
             (post) =>
@@ -241,7 +228,6 @@ export default function Explore() {
                 </Link>
 
                 <div className="flex items-center gap-2">
-                  
                   <p className="opacity-60">
                     {new Date(post.createdAt).toLocaleString()}
                   </p>
@@ -249,42 +235,42 @@ export default function Explore() {
               </div>
 
               <div
-              className="p-6 rounded-lg border"
-              style={{
-                backgroundColor: "var(--card)",
-                borderColor: "var(--border)",
-              }}
-            >
-              <h1 className="text-xl font-pixel font-bold mb-2">
-                {post.title}
-              </h1>
+                className="p-6 rounded-lg border"
+                style={{
+                  backgroundColor: "var(--card)",
+                  borderColor: "var(--border)",
+                }}
+              >
+                <h1 className="text-xl font-pixel font-bold mb-2">
+                  {post.title}
+                </h1>
 
-              {post.image && (
-                <img 
-                  src={post.image} 
-                  className="w-full rounded-lg mb-3 object-cover max-h-[400px]" 
-                  alt="" 
-                  loading="lazy" 
-                />
-              )}
+                {post.image && (
+                  <img 
+                    src={post.image} 
+                    className="w-full rounded-lg mb-3 object-cover max-h-[400px]" 
+                    alt="" 
+                    loading="lazy" 
+                  />
+                )}
 
-              <p className="mb-3 font-outfit font-medium">
-                {post.content}
-              </p>
-
-              {post.category && (
-                <p className="text-sm opacity-80 mb-1 font-outfit font-medium">
-                  Category: {post.category}
+                <p className="mb-3 font-outfit font-medium">
+                  {post.content}
                 </p>
-              )}
 
-              {post.tags && post.tags.length > 0 && (
-                              <p className="text-sm opacity-70  font-outfit font-medium mb-3">
-                                Tags: {post.tags.join(", ")}
-                              </p>
-                            )}
+                {post.category && (
+                  <p className="text-sm opacity-80 mb-1 font-outfit font-medium">
+                    Category: {post.category}
+                  </p>
+                )}
+
+                {post.tags && post.tags.length > 0 && (
+                  <p className="text-sm opacity-70 font-outfit font-medium mb-3">
+                    Tags: {post.tags.join(", ")}
+                  </p>
+                )}
               
-                            {currentUser !== post.userId && <SaveButton postId={post._id} className="ml-auto mb-1" />}
+                {currentUser !== post.userId && <SaveButton postId={post._id} className="ml-auto mb-1" />}
               </div>
 
             </div>

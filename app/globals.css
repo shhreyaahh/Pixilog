@@ -14,6 +14,11 @@
   }
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -28,7 +33,7 @@ body[data-theme="light"] {
   --bg: #ede8d0;          /* page background */
   --card: #ffffff;       /* card background */
   --input: #f8f6f2;      /* input background */
-  --border: #4d4343;     /* border color (darker for visibility) */
+  --border: #4d4343;/* border color (darker for visibility) */
   --text: #2e1f1b;       /* main text */
   --muted-text: #6b5c57; /* secondary text */
   --button: #2e1f1b;     /* button background */
@@ -79,4 +84,32 @@ body[data-theme="dark"] {
 
   background: var(--bg);
   color: var(--text);
+}
+
+
+/* Inputs use theme colors */
+input,
+textarea,
+select {
+  background: var(--input);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* Placeholder */
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted-text);
+}
+
+/* Browser autofill fix */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--text);
+  -webkit-box-shadow: 0 0 0px 1000px var(--input) inset;
+  transition: background-color 5000s ease-in-out 0s;
+  border: 1px solid var(--border);
 }

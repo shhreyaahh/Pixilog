@@ -7,6 +7,7 @@ import SaveButton from "@/components/SaveButtonClient.tsx";
 export default function ProfilePage({ params }) {
   const { username } = use(params);
   const [currentUser, setCurrentUser] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -14,6 +15,7 @@ export default function ProfilePage({ params }) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         setCurrentUser(payload.username);
+        setCurrentUserId(payload.id);
       } catch (e) {
         console.error('Token decode error', e);
       }
@@ -23,39 +25,83 @@ export default function ProfilePage({ params }) {
   const [posts, setPosts] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [profileUserId, setProfileUserId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     fetch(`/api/users/profile/${username}`)
       .then((res) => res.json())
       .then((data) => {
-        if (!data.error) {
+        if (data.error) {
+          setNotFound(true);
+        } else {
+          setNotFound(false);
+          setProfileUserId(data._id || null);
           setPosts(data.posts || []);
           setFollowers(data.followers || []);
           setFollowing(data.following || []);
         }
         setLoading(false);
+      })
+      .catch((error) => {
+        console.error(error);
+        setNotFound(true);
+        setLoading(false);
       });
   }, [username]);
 
+  const isOwnProfile = currentUser?.toLowerCase() === username?.toLowerCase();
+  const isFollowing = followers.some(
+    (follower) => follower._id?.toString() === currentUserId
+  );
+
+  const handleFollowToggle = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token || !profileUserId) return;
+
+    const res = await fetch(isFollowing ? "/api/users/unfollow" : "/api/users/follow", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ userId: profileUserId })
+    });
+
+    if (!res.ok) return;
+
+    if (isFollowing) {
+      setFollowers(followers.filter(
+        (follower) => follower._id?.toString() !== currentUserId
+      ));
+    } else {
+      setFollowers([
+        ...followers,
+        { _id: currentUserId, username: currentUser }
+      ]);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen pb-20 md:p-10 flex items-center justify-center">
+<div className="pb-24 md:pb-6 md:p-10 flex items-center justify-center">
         <p className="text-lg opacity-70">Loading...</p>
       </div>
     );
   }
 
-  if (posts.length === 0 && followers.length === 0) {
+  if (notFound) {
     return (
-      <div className="min-h-screen pb-20 md:p-10">
+<div className="pb-24 md:pb-6 md:p-10">
         <h1 className="text-2xl font-bold mb-4">User not found</h1>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pb-20 md:p-10">
+<div className="pb-24 md:pb-6 md:p-10">
 
       {/* PROFILE HEADER */}
 
@@ -85,6 +131,20 @@ export default function ProfilePage({ params }) {
             <span>{posts.length} posts</span>
 
           </div>
+
+          {currentUser && !isOwnProfile && (
+            <button
+              onClick={handleFollowToggle}
+              className="mt-4 px-4 py-2 rounded border text-sm font-outfit font-medium"
+              style={{
+                backgroundColor: isFollowing ? "var(--input)" : "var(--button)",
+                borderColor: "var(--border)",
+                color: isFollowing ? "var(--text)" : "var(--button-text)"
+              }}
+            >
+              {isFollowing ? "Unfollow" : "Follow"}
+            </button>
+          )}
 
         </div>
 
@@ -149,10 +209,10 @@ export default function ProfilePage({ params }) {
 
             </div>
           </div>
-        ))}
+))}
 
       </div>
-
     </div>
+
   );
 }

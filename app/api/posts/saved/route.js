@@ -22,13 +22,8 @@ export async function GET(req) {
       return Response.json({ error: "Invalid/expired token" }, { status: 401 });
     }
 
-    // Find user and populate saved posts with author username
     const user = await User.findById(decoded.id).populate({
       path: "savedPosts",
-      populate: {
-        path: "userId",
-        select: "username"
-      },
       select: "title content category tags createdAt isPublic userId image"
     });
     
@@ -36,12 +31,14 @@ export async function GET(req) {
       return Response.json({ error: "User not found" }, { status: 404 });
     }
 
-    return Response.json({ 
-      savedPosts: user.savedPosts.map(post => ({
-        ...post.toObject(),
-        authorUsername: post.userId?.username
-      })) 
-    });
+    return Response.json({
+  savedPosts: user.savedPosts
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .map(post => ({
+      ...post.toObject(),
+      authorUsername: post.userId
+    }))
+});
 
   } catch (error) {
     console.error("Failed to load saved posts:", error.message);

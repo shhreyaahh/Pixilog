@@ -8,15 +8,25 @@ export async function POST(req) {
 
   try {
 
-    const { username, email, password } = await req.json();
+    const body = await req.json();
+    const username = body.username?.trim();
+    const email = body.email?.trim().toLowerCase();
+    const password = body.password;
 
     await connectDB();
+
+    if ((!username && !email) || !password) {
+      return NextResponse.json(
+        { message: "Username/email and password are required" },
+        { status: 400 }
+      );
+    }
 
     // Support login with either username or email
     let user;
     if (username) {
       // Try username first, then email if username doesn't match
-      user = await User.findOne({ username }) || await User.findOne({ email: username });
+      user = await User.findOne({ username }) || await User.findOne({ email: username.toLowerCase() });
     } else if (email) {
       user = await User.findOne({ email });
     }
