@@ -1,15 +1,10 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +17,66 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+}
+
+/*adding pixel themes*/
+/* ========================= */
+/* LIGHT MODE */
+/* ========================= */
+body[data-theme="light"] {
+  --bg: #ede8d0;          /* page background */
+  --card: #ffffff;       /* card background */
+  --input: #f8f6f2;      /* input background */
+  --border: #4d4343;     /* border color (darker for visibility) */
+  --text: #2e1f1b;       /* main text */
+  --muted-text: #6b5c57; /* secondary text */
+  --button: #2e1f1b;     /* button background */
+  --button-text: #ffffff;
+  --save-idle-bg: #f6f1e2;
+  --save-idle-text: #2e1f1b;
+  --save-idle-border: #6b5c57;
+  --save-active-bg: #2e1f1b;
+  --save-active-text: #ffffff;
+  --save-active-border: #2e1f1b;
+
+  --diary-accent: #77b18b;
+  --saved-accent: #5caeac;
+
+  --cat-bg: #ebd9a3;        /* soft warm neutral (matches your beige theme) */
+--cat-active: #d1aa0f;    /* slightly darker */
+
+
+  background: var(--bg);
+  color: var(--text);
+}
+
+
+/* ========================= */
+/* DARK MODE */
+/* ========================= */
+body[data-theme="dark"] {
+  --bg: #191f2b;         /* midnight blue */
+  --card: #364761;       /* card surface */
+  --input: #29354d;      /* input surface */
+  --border: #646b78;     /* border */
+  --text: #f3f4f6;       /* main text */
+  --muted-text: #aab2c3; /* secondary text */
+  --button: #9cadd0;
+  --button-text: #191f2b;
+  --save-idle-bg: #29354d;
+  --save-idle-text: #f3f4f6;
+  --save-idle-border: #7d8dac;
+  --save-active-bg: #9cadd0;
+  --save-active-text: #191f2b;
+  --save-active-border: #9cadd0;
+
+  --diary-accent: #569668;
+  --saved-accent: #4e9899;
+
+  --cat-bg: #333d51;        /* same as your input/card tone */
+--cat-active: #3166c1;    /* slightly lighter (for dark UI contrast) */
+
+  background: var(--bg);
+  color: var(--text);
 }
