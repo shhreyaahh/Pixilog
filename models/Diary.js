@@ -1,38 +1,21 @@
-/*import mongoose from "mongoose";
+import mongoose from "mongoose";
 
 const DiarySchema = new mongoose.Schema(
-{
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true
+  {
+    title: String,
+    content: String,
+    category: String,
+    tags: [String],
+    isPublic: Boolean,
+    userId: String,
+    image: {
+      type: String,
+      default: null
+    }
   },
-
-  title: {
-    type: String,
-    required: true
-  },
-
-  content: {
-    type: String,
-    required: true
-  },
-
-  tags: [{
-    type: String
-  }],
-
-  images: [{
-    type: String
-  }],
-
-  isPrivate: {
-    type: Boolean,
-    default: true
-  }
-
-},
-{ timestamps: true }
+  { timestamps: true }
 );
 
-export default mongoose.models.Diary || mongoose.model("Diary", DiarySchema);*/
+const Diary = mongoose.models.Diary || mongoose.model("Diary", DiarySchema);
+
+export default Diary;

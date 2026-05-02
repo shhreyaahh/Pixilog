@@ -86,7 +86,7 @@ export default function ProfilePage({ params }) {
 
   if (loading) {
     return (
-<div className="pb-24 md:pb-6 md:p-10 flex items-center justify-center">
+      <div className="max-w-2xl mx-auto p-4 pb-24 md:pb-6 flex items-center justify-center">
         <p className="text-lg opacity-70">Loading...</p>
       </div>
     );
@@ -94,14 +94,14 @@ export default function ProfilePage({ params }) {
 
   if (notFound) {
     return (
-<div className="pb-24 md:pb-6 md:p-10">
+      <div className="max-w-2xl mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">User not found</h1>
       </div>
     );
   }
 
-  return (
-<div className="pb-24 md:pb-6 md:p-10">
+    return (
+      <div className="max-w-2xl mx-auto p-4 pb-24 md:pb-6">
 
       {/* PROFILE HEADER */}
 

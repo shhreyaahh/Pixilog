@@ -75,9 +75,9 @@ export default function Explore() {
     }
   };
 
-  return (
+return (
 
-<div className="max-w-2xl mx-auto space-y-8">
+<div className="max-w-2xl mx-auto space-y-4">
 
       {/* Search */}
       <div className="mb-8">

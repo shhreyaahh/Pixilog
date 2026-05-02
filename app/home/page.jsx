@@ -68,7 +68,7 @@ export default function Home() {
     fetchFeed();
   }, [router]);
 
-  return (
+return (
 <div className="max-w-2xl mx-auto space-y-4">
       <div className="mb-5 mt-2">
         <h1 className="text-3xl font-pixel font-bold leading-none">
