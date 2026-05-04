@@ -85,14 +85,15 @@ export default function SavedPosts() {
             <h2 className="text-xl font-pixel font-bold mb-2">
               {post.title}
             </h2>
-            {post.image && (
-              <img 
-                src={post.image} 
-                className="w-full rounded-lg mb-3 object-cover max-h-[400px]" 
-                alt="" 
-                loading="lazy" 
-              />
-            )}
+
+{post.image && (
+  <img
+    src={post.image}
+    className="w-full rounded-lg mb-3 max-h-[500px] object-contain bg-gray-100"
+    loading="lazy"
+    alt=""
+  />
+)}
             <p className="mb-3 font-outfit font-medium">
               {post.content}
             </p>

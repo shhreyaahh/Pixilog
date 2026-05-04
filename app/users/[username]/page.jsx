@@ -116,7 +116,7 @@ export default function ProfilePage({ params }) {
 
         <div>
 
-          <h1 className="text-xl md:text-2xl font-bold mb-2 font-outfit">@{username}</h1>
+          <h1 className="text-xl md:text-2xl font-bold mb-2 font-outfit truncate max-w-[200px]" title={username}>@{username}</h1>
 
           <div className="flex flex-wrap gap-x-4 gap-y-1 md:gap-6 text-sm opacity-80 font-outfit">
 
@@ -178,14 +178,14 @@ export default function ProfilePage({ params }) {
                 {post.title}
               </h2>
 
-              {post.image && (
-                <img 
-                  src={post.image} 
-                  className="w-full rounded-lg mb-3 object-cover max-h-[400px]" 
-                  alt="" 
-                  loading="lazy" 
-                />
-              )}
+{post.image && (
+  <img
+    src={post.image}
+    className="w-full rounded-lg mb-3 max-h-[500px] object-contain bg-gray-100"
+    loading="lazy"
+    alt=""
+  />
+)}
 
               {post.category && (
                 <p className="text-sm opacity-80 mb-1 font-outfit font-medium">

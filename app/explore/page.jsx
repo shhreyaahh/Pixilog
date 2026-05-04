@@ -114,7 +114,13 @@ return (
           {users?.map((user) => (
 
             <div key={user._id} className="flex justify-between items-center p-2 rounded font-outfit font-medium" style={{ border: '1px solid var(--border)' }}>
-              <Link href={`/users/${user.username}`} className="hover:underline">@{user.username}</Link>
+              <Link 
+                href={`/users/${user.username}`} 
+                className="hover:underline truncate max-w-[130px] block" 
+                title={user.username}
+              >
+                @{user.username}
+              </Link>
 
               <div className="flex items-center gap-3">
 
@@ -222,7 +228,8 @@ return (
               <div className="flex justify-between items-center text-xs">
                 <Link
                   href={`/users/${post.userId}`}
-                  className="font-outfit font-medium hover:underline text-sm"
+                  className="font-outfit font-medium hover:underline text-sm truncate max-w-[150px] block"
+                  title={post.userId}
                 >
                   @{post.userId}
                 </Link>
@@ -244,15 +251,14 @@ return (
                 <h1 className="text-xl font-pixel font-bold mb-2">
                   {post.title}
                 </h1>
-
-                {post.image && (
-                  <img 
-                    src={post.image} 
-                    className="w-full rounded-lg mb-3 object-cover max-h-[400px]" 
-                    alt="" 
-                    loading="lazy" 
-                  />
-                )}
+{post.image && (
+  <img
+    src={post.image}
+    className="w-full rounded-lg mb-3 max-h-[500px] object-contain bg-gray-100"
+    loading="lazy"
+    alt=""
+  />
+)}
 
                 <p className="mb-3 font-outfit font-medium">
                   {post.content}

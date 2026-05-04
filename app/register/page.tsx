@@ -10,6 +10,29 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+
+  const isValidUsername = (name: string) => {
+    const trimmed = name.trim();
+    if (trimmed.length < 3 || trimmed.length > 20) return false;
+    return /^[a-zA-Z0-9._-]+$/.test(trimmed);
+  };
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setUsername(value);
+    if (value.trim()) {
+      if (!isValidUsername(value)) {
+        setUsernameError("Username must be 3-20 chars (letters, numbers, ., _, -)");
+      } else {
+        setUsernameError("");
+      }
+    } else {
+      setUsernameError("");
+    }
+  };
+
+  const isFormValid = usernameError === "" && username.trim() && email.trim() && password;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,8 +45,8 @@ export default function Register() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username,
-          email,
+          username: username.trim(),
+          email: email.trim().toLowerCase(),
           password,
         }),
       });
@@ -72,11 +95,15 @@ export default function Register() {
         <input
           placeholder="Username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={handleUsernameChange}
+          maxLength={20}
           className="border p-3 rounded outline-none focus:ring-2 focus:ring-blue-400"
           style={inputStyle}
           required
         />
+        {usernameError && (
+          <p className="text-red-500 text-sm mt-1">{usernameError}</p>
+        )}
 
         <input
           type="email"

@@ -221,7 +221,9 @@ return (
               {post.image && (
   <img
     src={post.image}
-    className="w-full rounded-lg mb-3"
+    className="w-full rounded-lg mb-3 max-h-[500px] object-contain bg-gray-100"
+    loading="lazy"
+    alt=""
   />
 )}
 

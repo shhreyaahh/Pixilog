@@ -97,7 +97,8 @@ export default function UsersPage() {
               >
                 <Link
                   href={`/users/${user.username}`}
-                  className="font-outfit font-medium hover:underline"
+                  className="font-outfit font-medium hover:underline truncate max-w-[130px] block"
+                  title={user.username}
                 >
                   @{user.username}
                 </Link>

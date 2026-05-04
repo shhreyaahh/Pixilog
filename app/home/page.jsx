@@ -110,7 +110,8 @@ return (
           <div className="flex justify-between items-center text-xs mt-8">
             <Link
               href={`/users/${post.userId}`}
-              className="font-outfit font-medium hover:underline text-sm"
+              className="font-outfit font-medium hover:underline text-sm truncate max-w-[150px] block"
+              title={post.userId}
             >
               @{post.userId}
             </Link>
@@ -129,14 +130,14 @@ return (
               {post.title}
             </h1>
 
-            {post.image && (
-              <img 
-                src={post.image} 
-                className="w-full rounded-lg mb-3 object-cover max-h-[400px]" 
-                alt="" 
-                loading="lazy" 
-              />
-            )}
+{post.image && (
+  <img
+    src={post.image}
+    className="w-full rounded-lg mb-3 max-h-[500px] object-contain bg-gray-100"
+    loading="lazy"
+    alt=""
+  />
+)}
 
             <p className="mb-3 font-outfit font-medium">
               {post.content}
