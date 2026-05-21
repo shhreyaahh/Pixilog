@@ -3,6 +3,7 @@ import connectDB from "@/lib/mongodb";
 //import Diary from "@/models/Diary";
 import jwt from "jsonwebtoken";
 import Post from "@/models/Post"
+
 export async function DELETE(req, { params }) {
   try {
     const token = req.headers.get("authorization")?.split(" ")[1];

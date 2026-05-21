@@ -13,11 +13,14 @@ export default function Navbar() {
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+    //"This ref points to a div"
   const desktopMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setIsAuthenticated(Boolean(localStorage.getItem("token")));
+    setIsAuthenticated(
+      Boolean(localStorage.getItem("token"))
+    );
   }, [pathname]);
 
   useEffect(() => {
